@@ -53,7 +53,7 @@ function HeaderComponet() {
             </div>
           </WrapperHeaderAccout>
           <div>
-            <Badge size="small">
+            <Badge count ={4} size="small">
               <ShoppingCartOutlined
                 style={{ fontSize: "30px", color: "#fff" }}
               />
