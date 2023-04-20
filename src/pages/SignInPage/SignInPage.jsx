@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   WrapperContainerLeft,
@@ -11,8 +11,61 @@ import ButtonComponent from "../../component/ButtonComponent/ButtonComponent";
 import InputForm from "../../component/InputForm/InputForm";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import * as UserService from "../../services/UserService";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import Loading from "../../component/LoadingComponet/LoadingComponet";
+import * as message from "../../component/Mesage/Message";
+import jwt_decode from "jwt-decode";
+import {useDispatch} from "react-redux"
+import { updateUser } from "../../redux/slides/userSlide";
+
 const SignInPage = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const mutation = useMutationHooks((data) => UserService.loginUser(data));
+  const { data, isLoading, isSuccess, isError } = mutation;
+  // console.log( isLoading);
+  useEffect(() => {
+    if (isSuccess) {
+      navigate('/')
+      // console.log(data);
+      localStorage.setItem("access_token", JSON.stringify( data && data.access_token));
+      if (data && data.access_token) {
+        const decoded = jwt_decode(data && data.access_token);
+        // console.log("decoded", decoded);
+        if (decoded && decoded.id) {
+          handleGetDetailsUser(
+            decoded && decoded.id,
+            data && data.access_token
+          );
+        }
+      }
+    }
+  }, [isSuccess]);
+  const handleGetDetailsUser = async (id, token) => {
+    const res = await UserService.getDetailsUser(id,token);
+    dispatch(updateUser({...res &&res.data, access_token: token}))
+    console.log(res);
+  };
+  const handleSignIn = () => {
+    mutation.mutate({ email, password });
+  };
+  console.log(mutation);
+  const handleNavigateSignUp = () => {
+    navigate("/sign-up");
+  };
+  const handleOnchangeEmail = (value) => {
+    setEmail(value);
+  };
+  const handleOnchangePassword = (value) => {
+    setPassword(value);
+  };
+
   return (
     <div
       style={{
@@ -36,11 +89,14 @@ const SignInPage = () => {
           <h1>Xin chào</h1>
           <p>Đăng nhập vào tạo tài khoản</p>
           <InputForm
+            value={email}
+            onChange={handleOnchangeEmail}
             style={{ marginBottom: "10px" }}
             placeholder="abc@gmail.com"
           />
           <div style={{ position: "relative" }}>
             <span
+              onClick={() => setIsShowPassword(!isShowPassword)}
               style={{
                 zIndex: 10,
                 position: "absolute",
@@ -51,34 +107,45 @@ const SignInPage = () => {
               {isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
             </span>
             <InputForm
+              value={password}
+              onChange={handleOnchangePassword}
               placeholder="password"
               type={isShowPassword ? "text" : "password"}
             />
           </div>
-          <ButtonComponent
-            bordered={false}
-            size={40}
-            styleButton={{
-              background: "rgb(255, 57, 69)",
-              height: "48px",
-              width: "100%",
-              border: "none",
-              borderRadius: "4px",
-              margin: "26px 0 10px",
-            }}
-            textbutton={"Đăng nhập"}
-            styleTextButton={{
-              color: "#fff",
-              fontSize: "15px",
-              fontWeight: "700",
-            }}
-          ></ButtonComponent>
+          {data && data.status === "ERR" && (
+            <span style={{ color: "red" }}>{data.message}</span>
+          )}
+          <Loading isLoading={isLoading}>
+            <ButtonComponent
+              disabled={!email.length || !password.length}
+              onClick={handleSignIn}
+              size={40}
+              styleButton={{
+                background: "rgb(255, 57, 69)",
+                height: "48px",
+                width: "100%",
+                border: "none",
+                borderRadius: "4px",
+                margin: "26px 0 10px",
+              }}
+              textbutton={"Đăng nhập"}
+              styleTextButton={{
+                color: "#fff",
+                fontSize: "15px",
+                fontWeight: "700",
+              }}
+            ></ButtonComponent>
+          </Loading>
           <p>
             <WrapperTextLight>Quên mật khẩu?</WrapperTextLight>
           </p>
           <p>
             Chưa có tài khoản?{" "}
-            <WrapperTextLight> Tạo tài khoản</WrapperTextLight>
+            <WrapperTextLight onClick={handleNavigateSignUp}>
+              {" "}
+              Tạo tài khoản
+            </WrapperTextLight>
           </p>
         </WrapperContainerLeft>
         <WrapperContainerRight>

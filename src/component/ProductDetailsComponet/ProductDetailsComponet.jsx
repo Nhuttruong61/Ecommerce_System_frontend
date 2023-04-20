@@ -12,7 +12,6 @@ import {
   WrapperAddressProduct,
   WrapperQualityProduct,
   WrapperInputNumber,
-  WrapperBtnQualityProduct,
 } from "./style";
 import { StarFilled, PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
@@ -124,7 +123,7 @@ const ProductDetailsComponent = () => {
         </div>
         <div style={{ display: "flex", aliggItems: "center", gap: "12px" }}>
           <ButtonComponent
-            bordered={false}
+            
             size={40}
             styleButton={{
               background: "rgb(255, 57, 69)",
