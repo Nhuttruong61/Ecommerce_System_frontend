@@ -1,6 +1,7 @@
-import { Badge, Col } from "antd";
-import React from "react";
+import { Badge, Col, Popover } from "antd";
+import React, { useState } from "react";
 import {
+  WrapperContentPopup,
   WrapperHeader,
   WrapperHeaderAccout,
   WrapperTextHeader,
@@ -13,15 +14,32 @@ import {
 } from "@ant-design/icons";
 import ButttonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import * as UserService from "../../services/UserService";
+import { resetUser } from "../../redux/slides/userSlide";
+import Loading from "../LoadingComponet/LoadingComponet";
 
 const HeaderComponet = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false)
   const handleNavigateLogin = () => {
     navigate("/sign-in");
   };
-  console.log("user", user);
+  const hanleLogout = async () => {
+    setLoading(true);
+  await UserService.logoutUser();
+  dispatch(resetUser());
+  setLoading(false);
+};
+
+  const content = (
+    <div>
+      <WrapperContentPopup onClick={hanleLogout}>Đăng Xuất</WrapperContentPopup>
+      <WrapperContentPopup>Thông tin người dùng</WrapperContentPopup>
+    </div>
+  );
   return (
     <div
       style={{
@@ -47,10 +65,15 @@ const HeaderComponet = () => {
           span={6}
           style={{ display: "flex", gap: "54px", alignItems: "center" }}
         >
+          <Loading isLoading={loading}>
           <WrapperHeaderAccout>
             <UserOutlined style={{ fontSize: "30px" }} />
             {user && user.name ? (
-              <div style={{ cursor: "pointer" }}>{user.name}</div>
+              <div>
+                <Popover content={content} trigger="click">
+                  <div style={{ cursor: "pointer" }}>{user.name}</div>
+                </Popover>
+              </div>
             ) : (
               <div onClick={handleNavigateLogin} style={{ cursor: "pointer" }}>
                 <WrapperTextHeaderSmall>
@@ -63,6 +86,7 @@ const HeaderComponet = () => {
               </div>
             )}
           </WrapperHeaderAccout>
+          </Loading>
           <div>
             <Badge count={4} size="small">
               <ShoppingCartOutlined
