@@ -1,39 +1,53 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    name: '',
-    email: '',
-    access_token: '',
-    exp: '',
-    id: ''
-}
+  name: "",
+  email: "",
+  access_token: "",
+  exp: "",
+  id: "",
+  isAdmin: false,
+};
 
 export const userSlide = createSlice({
-    name: 'user',
-    initialState,
-    reducers: {
-        updateUser: (state, action) => {
-            const { name, email, access_token, exp, id } = action.payload
-            state.name = name || email;
-            state.email = email;
-            state.access_token = access_token;
-            state.exp = exp;
-            state.id = id
-            // console.log('action', action);
-        },
-        resetUser: (state) => {
-            state.name = '';
-            state.email = '';
-            state.address = '';
-            state.phone = '';
-            state.avatar = '';
-            state.id = '';
-            state.access_token = '';
-        },
+  name: "user",
+  initialState,
+  reducers: {
+    updateUser: (state, action) => {
+      const {
+        name = "",
+        email = "",
+        access_token = "",
+        address = "",
+        phone = "",
+        avatar = "",
+        _id = "",
+        isAdmin,
+      } = action.payload;
+      state.name = name;
+      state.email = email;
+      state.address = address;
+      state.phone = phone;
+      state.avatar = avatar;
+      state.id = _id;
+      state.access_token = access_token;
+      state.isAdmin = isAdmin;
     },
-})
+    resetUser: (state) => {
+      state.name = "";
+      state.email = "";
+      state.address = "";
+      state.phone = "";
+      state.avatar = "";
+      state.id = "";
+      state.access_token = "";
+      state.access_token = false;
+
+    },
+  },
+});
 
 // Action creators are generated for each case reducer function
-export const { updateUser, resetUser } = userSlide.actions
+export const { updateUser, resetUser } = userSlide.actions;
 
-export default userSlide.reducer
+export default userSlide.reducer;

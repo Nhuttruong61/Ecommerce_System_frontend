@@ -10,9 +10,21 @@ import slider2 from "../../assets/images/slider2.jpg";
 import slider3 from "../../assets/images/slider3.jpg";
 import CardComponet from "../../component/CardComponet/CardComponet";
 import SliderComponent from "../../component/SliderComponet/SliderComponet";
-
+import { useQuery } from "react-query";
+import * as ProductService from "../../services/ProductService";
 const HomePage = () => {
   const arr = ["Nam", "Nu"];
+  const fetchProductAll = async () => {
+    const res = await ProductService.getAllProduct();
+    console.log("res", res);
+    return res;
+  };
+  const { isLoading, data: products } = useQuery(
+    ["products"],
+    fetchProductAll,
+    { retry: 3, retryDelay: 1000 }
+  );
+  console.log("products", products);
   return (
     <>
       <div style={{ width: "1270px", margin: "0 auto" }}>
@@ -32,16 +44,24 @@ const HomePage = () => {
         >
           <SliderComponent arrImages={[slider1, slider2, slider3]} />
           <WrapperProducts>
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
-            <CardComponet />
+            {products &&
+              products.data &&
+              products.data.map(function (product) {
+                return (
+                  <CardComponet
+                    key={product._id}
+                    countInStock={product.countInStock}
+                    description={product.description}
+                    image={product.image}
+                    name={product.name}
+                    price={product.price}
+                    rating={product.rating}
+                    type={product.type}
+                    selled={product.selled}
+                    discount={product.discount}
+                  />
+                );
+              })}
           </WrapperProducts>
           <div
             style={{

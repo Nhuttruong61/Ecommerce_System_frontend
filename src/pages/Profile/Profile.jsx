@@ -2,15 +2,16 @@ import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
-import InputForm from '../../components/InputForm/InputForm'
-import { WrapperContentProfile, WrapperHeader, WrapperInput, WrapperLabel } from './style'
+import ButtonComponent from '../../component/ButtonComponent/ButtonComponent'
+import InputForm from '../../component/InputForm/InputForm'
+import { WrapperContentProfile, WrapperHeader, WrapperInput, WrapperLabel, WrapperUploadFile } from './style'
 import * as UserService from '../../services/UserService'
 import { useMutationHooks } from '../../hooks/useMutationHook'
-import Loading from '../../components/LoadingComponent/Loading'
-import * as message from '../../components/Message/Message'
+import Loading from '../../component/LoadingComponet/LoadingComponet'
+import * as message from '../../component/Mesage/Message'
 import { updateUser } from '../../redux/slides/userSlide'
 
+import { getBase64 } from '../../utils'
 const ProfilePage = () => {
     const user = useSelector((state) => state.user)
     const [email, setEmail] = useState('')
@@ -27,20 +28,20 @@ const ProfilePage = () => {
 
     const dispatch = useDispatch()
     const { data, isLoading, isSuccess, isError } = mutation
-    console.log('dataa', data)
+    console.log('data', data)
 
     useEffect(() => {
-        setEmail(user?.email)
-        setName(user?.name)
-        setPhone(user?.phone)
-        setAddress(user?.address)
-        setAvatar(user?.avatar)
+        setEmail(user && user.email)
+        setName(user && user.name)
+        setPhone(user && user.phone)
+        setAddress(user && user.address)
+        setAvatar(user && user.avatar)
     }, [user])
 
     useEffect(() => {
         if (isSuccess) {
             message.success()
-            handleGetDetailsUser(user?.id, user?.access_token)
+            handleGetDetailsUser(user && user.id, user && user.access_token)
         } else if (isError) {
             message.error()
         }
@@ -48,7 +49,7 @@ const ProfilePage = () => {
 
     const handleGetDetailsUser = async (id, token) => {
         const res = await UserService.getDetailsUser(id, token)
-        dispatch(updateUser({ ...res?.data, access_token: token }))
+        dispatch(updateUser({ ...res && res.data, access_token: token }))
     }
 
     const handleOnchangeEmail = (value) => {
@@ -64,12 +65,16 @@ const ProfilePage = () => {
         setAddress(value)
     }
 
-    const handleOnchangeAvatar = (value) => {
-        setAvatar(value)
+    const handleOnchangeAvatar = async ({fileList}) => {
+        const file = fileList[0]
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj );
+        }
+        setAvatar(file.preview)
     }
 
     const handleUpdate = () => {
-        mutation.mutate({ id: user?.id, email, name, phone, address, avatar, access_token: user?.access_token })
+        mutation.mutate({ id: user && user.id, email, name, phone, address, avatar, access_token: user && user.access_token })
 
     }
     return (
@@ -89,8 +94,8 @@ const ProfilePage = () => {
                                 borderRadius: '4px',
                                 padding: '2px 6px 6px'
                             }}
-                            textButton={'Cập nhật'}
-                            styleTextButton={{ color: 'rgb(26, 148, 255)', fontSize: '15px', fontWeight: '700' }}
+                            textbutton={'Cập nhật'}
+                            styleTextButton={{ color: 'rgb(249, 76, 47)', fontSize: '15px', fontWeight: '700' }}
                         ></ButtonComponent>
                     </WrapperInput>
                     <WrapperInput>
@@ -105,8 +110,8 @@ const ProfilePage = () => {
                                 borderRadius: '4px',
                                 padding: '2px 6px 6px'
                             }}
-                            textButton={'Cập nhật'}
-                            styleTextButton={{ color: 'rgb(26, 148, 255)', fontSize: '15px', fontWeight: '700' }}
+                            textbutton={'Cập nhật'}
+                            styleTextButton={{ color: 'rgb(249, 76, 47)', fontSize: '15px', fontWeight: '700' }}
                         ></ButtonComponent>
                     </WrapperInput>
                     <WrapperInput>
@@ -121,26 +126,11 @@ const ProfilePage = () => {
                                 borderRadius: '4px',
                                 padding: '2px 6px 6px'
                             }}
-                            textButton={'Cập nhật'}
-                            styleTextButton={{ color: 'rgb(26, 148, 255)', fontSize: '15px', fontWeight: '700' }}
+                            textbutton={'Cập nhật'}
+                            styleTextButton={{ color: 'rgb(249, 76, 47)', fontSize: '15px', fontWeight: '700' }}
                         ></ButtonComponent>
                     </WrapperInput>
-                    <WrapperInput>
-                        <WrapperLabel htmlFor="avatar">Avatar</WrapperLabel>
-                        <InputForm style={{ width: '300px' }} id="avatar" value={avatar} onChange={handleOnchangeAvatar} />
-                        <ButtonComponent
-                            onClick={handleUpdate}
-                            size={40}
-                            styleButton={{
-                                height: '30px',
-                                width: 'fit-content',
-                                borderRadius: '4px',
-                                padding: '2px 6px 6px'
-                            }}
-                            textButton={'Cập nhật'}
-                            styleTextButton={{ color: 'rgb(26, 148, 255)', fontSize: '15px', fontWeight: '700' }}
-                        ></ButtonComponent>
-                    </WrapperInput>
+                   
                     <WrapperInput>
                         <WrapperLabel htmlFor="address">Address</WrapperLabel>
                         <InputForm style={{ width: '300px' }} id="address" value={address} onChange={handleOnchangeAddress} />
@@ -153,8 +143,8 @@ const ProfilePage = () => {
                                 borderRadius: '4px',
                                 padding: '2px 6px 6px'
                             }}
-                            textButton={'Cập nhật'}
-                            styleTextButton={{ color: 'rgb(26, 148, 255)', fontSize: '15px', fontWeight: '700' }}
+                            textbutton={'Cập nhật'}
+                            styleTextButton={{ color: 'rgb(249, 76, 47)', fontSize: '15px', fontWeight: '700' }}
                         ></ButtonComponent>
                     </WrapperInput>
                 </WrapperContentProfile>
