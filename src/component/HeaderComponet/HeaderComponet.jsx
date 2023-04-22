@@ -1,4 +1,4 @@
-import { Badge, Col, Popove, Button, Popover } from "antd";
+import { Badge, Col, Popover } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   WrapperContentPopup,
@@ -52,9 +52,7 @@ const HeaderComponet = ({ isHiddenSearch = false, isHiddenCart = false }) => {
           Quản lí hệ thống
         </WrapperContentPopup>
       )}
-      <WrapperContentPopup onClick={hanleLogout}>
-        Đăng xuất
-      </WrapperContentPopup>
+      <WrapperContentPopup onClick={hanleLogout}>Đăng xuất</WrapperContentPopup>
     </div>
   );
   return (
@@ -66,7 +64,12 @@ const HeaderComponet = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         justifyContent: "center",
       }}
     >
-      <WrapperHeader>
+      <WrapperHeader
+        style={{
+          justifyContent:
+            isHiddenSearch && isHiddenCart ? "space-between" : "unset",
+        }}
+      >
         <Col span={5}>
           <WrapperTextHeader
             style={{ cursor: "pointer" }}
@@ -77,21 +80,35 @@ const HeaderComponet = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             Ecommerce
           </WrapperTextHeader>
         </Col>
-        <Col span={13}>
-          <ButttonInputSearch
-            size="large"
-            textbutton="Tìm kiếm"
-            placeholder="Tìm kiếm tại đây"
-            // onSearch={onSearch}
-          />
-        </Col>
+        {!isHiddenSearch && (
+          <Col span={13}>
+            <ButttonInputSearch
+              size="large"
+              textbutton="Tìm kiếm"
+              placeholder="Tìm kiếm tại đây"
+              // onSearch={onSearch}
+            />
+          </Col>
+        )}
         <Col
           span={6}
           style={{ display: "flex", gap: "54px", alignItems: "center" }}
         >
           <Loading isLoading={loading}>
             <WrapperHeaderAccout>
-              <UserOutlined style={{ fontSize: "30px" }} />
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  style={{
+                    height: "60px",
+                    width: "60px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <UserOutlined style={{ fontSize: "30px" }} />
+              )}
               {user && user.access_token ? (
                 <>
                   <Popover content={content} trigger="click">
@@ -118,14 +135,16 @@ const HeaderComponet = ({ isHiddenSearch = false, isHiddenCart = false }) => {
               )}
             </WrapperHeaderAccout>
           </Loading>
-          <div>
-            <Badge count={4} size="small">
-              <ShoppingCartOutlined
-                style={{ fontSize: "30px", color: "#fff" }}
-              />
-            </Badge>
-            <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
-          </div>
+          {!isHiddenCart && (
+            <div>
+              <Badge count={4} size="small">
+                <ShoppingCartOutlined
+                  style={{ fontSize: "30px", color: "#fff" }}
+                />
+              </Badge>
+              <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
+            </div>
+          )}
         </Col>
       </WrapperHeader>
     </div>

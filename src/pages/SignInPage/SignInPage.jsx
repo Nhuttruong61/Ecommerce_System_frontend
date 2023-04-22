@@ -17,7 +17,7 @@ import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
 import * as message from "../../component/Mesage/Message";
 import jwt_decode from "jwt-decode";
-import {useDispatch} from "react-redux"
+import { useDispatch } from "react-redux";
 import { updateUser } from "../../redux/slides/userSlide";
 
 const SignInPage = () => {
@@ -32,9 +32,12 @@ const SignInPage = () => {
   // console.log( isLoading);
   useEffect(() => {
     if (isSuccess) {
-      navigate('/')
+      navigate("/");
       // console.log(data);
-      localStorage.setItem("access_token", JSON.stringify( data && data.access_token));
+      localStorage.setItem(
+        "access_token",
+        JSON.stringify(data && data.access_token)
+      );
       if (data && data.access_token) {
         const decoded = jwt_decode(data && data.access_token);
         // console.log("decoded", decoded);
@@ -48,8 +51,8 @@ const SignInPage = () => {
     }
   }, [isSuccess]);
   const handleGetDetailsUser = async (id, token) => {
-    const res = await UserService.getDetailsUser(id,token);
-    dispatch(updateUser({...res &&res.data, access_token: token}))
+    const res = await UserService.getDetailsUser(id, token);
+    dispatch(updateUser({ ...(res && res.data), access_token: token }));
     console.log(res);
   };
   const handleSignIn = () => {
