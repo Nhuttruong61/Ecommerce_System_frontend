@@ -24,7 +24,7 @@ const HomePage = () => {
     fetchProductAll,
     { retry: 3, retryDelay: 1000 }
   );
-  console.log("products", products);
+  // console.log("products", products);
   return (
     <>
       <div style={{ width: "1270px", margin: "0 auto" }}>
