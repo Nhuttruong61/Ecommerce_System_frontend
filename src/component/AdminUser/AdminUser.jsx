@@ -32,6 +32,7 @@ function AdminUser() {
     email: "",
     phone: "",
     isAdmin: false,
+    address: ''
   });
 
   const mutationUpdate = useMutationHooks((data) => {
@@ -73,6 +74,7 @@ function AdminUser() {
         email: res && res.data && res.data.email,
         phone: res && res.data && res.data.phone,
         isAdmin: res && res.data && res.data.isAdmin,
+        address: res && res.data && res.data.address,
       });
     }
     setIsLoadingUpdate(false);
@@ -84,6 +86,7 @@ function AdminUser() {
       email: stateUserDetails.email,
       phone: stateUserDetails.phone,
       isAdmin: stateUserDetails.isAdmin,
+      address: stateUserDetails.address
     });
   }, [form, stateUserDetails]);
 
@@ -146,6 +149,7 @@ function AdminUser() {
       email: "",
       phone: "",
       isAdmin: false,
+      address: ""
     });
     form.resetFields();
   };
@@ -302,6 +306,12 @@ function AdminUser() {
       ...getColumnSearchProps("phone"),
     },
     {
+      title: 'Address',
+      dataIndex: 'address',
+      sorter: (a, b) => a.address.length - b.address.length,
+      ...getColumnSearchProps('address')
+    },
+    {
       title: "Action",
       dataIndex: "action",
       render: renderAction,
@@ -409,7 +419,7 @@ function AdminUser() {
               rules={[
                 {
                   required: true,
-                  message: "Please input your  email!",
+                  message: "Please input your email!",
                 },
               ]}
             >
@@ -425,7 +435,7 @@ function AdminUser() {
               rules={[
                 {
                   required: true,
-                  message: "Please input your  count phone!",
+                  message: "Please input your phone!",
                 },
               ]}
             >
@@ -435,6 +445,22 @@ function AdminUser() {
                 name="phone"
               />
             </Form.Item>
+            <Form.Item
+            label="Address"
+            name="address"
+            rules={[
+              {
+                required: true,
+                message: "Please input your address!",
+              },
+            ]}
+          >
+            <InputComponet
+              value={stateUserDetails.address}
+              onChange={handleOnchangeDetails}
+              name="address"
+            />
+          </Form.Item>
             <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
               <Button type="primary" htmlType="submit">
                 Submit
