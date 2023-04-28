@@ -36,7 +36,7 @@ function AdminUser() {
 
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
-    const res = UserService.updateUser(id,  { ...rests },token);
+    const res = UserService.updateUser(id, { ...rests }, token);
     return res;
   });
 
@@ -45,12 +45,27 @@ function AdminUser() {
     const res = UserService.deleteUser(id, token);
     return res;
   });
+  const mutationDeletedMany = useMutationHooks((data) => {
+    const { token, ...ids } = data;
+    const res = UserService.deleteManyUser(ids, token);
+    return res;
+  });
 
+  const handleDelteManyUsers = (ids) => {
+    mutationDeletedMany.mutate(
+      { ids: ids, token: user && user.access_token },
+      {
+        onSettled: () => {
+          queryUser.refetch();
+        },
+      }
+    );
+  };
   const getAllUser = async () => {
     const res = await UserService.getAllUser();
     return res;
   };
-  const fetchDetailsUser= async (rowSelected) => {
+  const fetchDetailsUser = async (rowSelected) => {
     const res = await UserService.getDetailsUser(rowSelected);
     if (res && res.data) {
       setStateUserDetails({
@@ -73,10 +88,10 @@ function AdminUser() {
   }, [form, stateUserDetails]);
 
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
       fetchDetailsUser(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
   console.log("stateUserdetail", stateUserDetails);
   const handleDetailsProduct = () => {
     setIsOpenDrawer(true);
@@ -94,6 +109,12 @@ function AdminUser() {
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDeleted;
+  const {
+    data: dataDeletedMany,
+    isLoading: isLoadingDeletedMany,
+    isSuccess: isSuccessDelectedMany,
+    isError: isErrorDeletedMany,
+  } = mutationDeletedMany;
   const queryUser = useQuery(["user"], getAllUser);
   const { isLoading: isLoadingUsers, data: users } = queryUser;
 
@@ -107,7 +128,17 @@ function AdminUser() {
       message.error();
     }
   }, [isSuccessDeleted]);
-
+  useEffect(() => {
+    if (
+      isSuccessDelectedMany &&
+      dataDeletedMany &&
+      dataDeletedMany.status === "OK"
+    ) {
+      message.success();
+    } else if (isErrorDeletedMany) {
+      message.error();
+    }
+  }, [isSuccessDelectedMany]);
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
     setStateUserDetails({
@@ -129,7 +160,11 @@ function AdminUser() {
   let dataTable = [];
   if (users && users.data && users.data.length > 0) {
     dataTable = users.data.map((user) => {
-      return { ...user, key: user._id, isAdmin: user.isAdmin ? "TRUE": "FALSE" };
+      return {
+        ...user,
+        key: user._id,
+        isAdmin: user.isAdmin ? "TRUE" : "FALSE",
+      };
     });
   }
 
@@ -232,7 +267,6 @@ function AdminUser() {
         }, 100);
       }
     },
-
   });
   const columns = [
     {
@@ -288,13 +322,12 @@ function AdminUser() {
     console.log("delete");
   };
 
-const handleOnchangeDetails = (e) => {
+  const handleOnchangeDetails = (e) => {
     setStateUserDetails({
       ...stateUserDetails,
       [e.target.name]: e.target.value,
     });
   };
-
 
   const onUpdateUser = () => {
     mutationUpdate.mutate(
@@ -313,9 +346,10 @@ const handleOnchangeDetails = (e) => {
   return (
     <div>
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
-      
+
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          handleDelteMany={handleDelteManyUsers}
           columns={columns}
           isLoading={isLoadingUsers}
           data={dataTable}

@@ -74,6 +74,11 @@ function AdminProduct() {
     return res;
   });
 
+  const mutationDeletedMany = useMutationHooks((data) => {
+    const { token, ...ids } = data;
+    const res = ProductService.deleteManyProduct(ids, token);
+    return res;
+  });
   const getAllProducts = async () => {
     const res = await ProductService.getAllProduct();
     // console.log('res', res);
@@ -108,13 +113,24 @@ function AdminProduct() {
   }, [form, stateProductDetails]);
 
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
+      setIsLoadingUpdate(true);
       fetchDetailsProducts(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
   console.log("stateproductdetail", stateProductDetails);
   const handleDetailsProduct = () => {
     setIsOpenDrawer(true);
+  };
+  const handleDelteManyProducts = (ids) => {
+    mutationDeletedMany.mutate(
+      { ids: ids, token: user && user.access_token },
+      {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
+      }
+    );
   };
   const { data, isLoading, isSuccess, isError } = mutation;
   const {
@@ -129,6 +145,12 @@ function AdminProduct() {
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDeleted;
+  const {
+    data: dataDeletedMany,
+    isLoading: isLoadingDeletedMany,
+    isSuccess: isSuccessDelectedMany,
+    isError: isErrorDeletedMany,
+  } = mutationDeletedMany;
   const queryProduct = useQuery(["products"], getAllProducts);
   const { isLoading: isLoadingProducts, data: products } = queryProduct;
 
@@ -151,6 +173,17 @@ function AdminProduct() {
       message.error();
     }
   }, [isSuccessDeleted]);
+  useEffect(() => {
+    if (
+      isSuccessDelectedMany &&
+      dataDeletedMany &&
+      dataDeletedMany.status === "OK"
+    ) {
+      message.success();
+    } else if (isErrorDeletedMany) {
+      message.error();
+    }
+  }, [isSuccessDelectedMany]);
 
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
@@ -457,6 +490,7 @@ function AdminProduct() {
       </div>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          handleDelteMany={handleDelteManyProducts}
           columns={columns}
           isLoading={isLoadingProducts}
           data={dataTable}
