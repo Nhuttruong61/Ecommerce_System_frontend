@@ -31,7 +31,7 @@ const CardComponet = (props) => {
       cover={
         <img
           alt="example"
-          src="https://cdn2.yame.vn/pimg/ao-thun-co-tru-on-gian-y-nguyen-ban-ver46-0020781/6395b6a5-4ab2-2300-ea53-00190f910aaa.jpg?w=540&h=756"
+          src={image}
         />
       }
     >
@@ -49,7 +49,7 @@ const CardComponet = (props) => {
       <StyleNameProduct>{name}</StyleNameProduct>
       <WrapperReportText>
         <span style={{ marginRight: "4px" }}>
-        <span>{rating} </span> <StarFilled style={{ fontSize: '12px', color: 'rgb(253, 216, 54)' }} />
+        <span>{rating} </span> 
           <StarFilled
             style={{ fontSize: "12px", color: "rgb(253, 216, 54)" }}
           />
@@ -57,8 +57,8 @@ const CardComponet = (props) => {
         <WrapperStyleTextSell> | Da ban {selled || 1000 }+</WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
-      <span style={{ marginRight: '8px' }}>{price}</span>
-        <WrapperDiscountText> {discount || 5} %</WrapperDiscountText>
+      <span style={{ marginRight: '8px' }}>{price.toLocaleString()}</span>
+        <WrapperDiscountText> - {discount || 5} %</WrapperDiscountText>
       </WrapperPriceText>
     </WrapperCardStyle>
   );

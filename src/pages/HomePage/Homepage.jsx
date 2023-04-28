@@ -6,7 +6,7 @@ import {
   WrapperTypeProduct,
 } from "./style";
 import slider1 from "../../assets/images/slider1.jpg";
-import slider2 from "../../assets/images/slider2.jpg";
+import slider2 from "../../assets/images/slider2.png";
 import slider3 from "../../assets/images/slider3.jpg";
 import CardComponet from "../../component/CardComponet/CardComponet";
 import SliderComponent from "../../component/SliderComponet/SliderComponet";
@@ -16,41 +16,31 @@ import { useSelector } from "react-redux";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
 import { useDebounce } from "../../hooks/useDebounce";
 const HomePage = () => {
-  const refSearch = useRef()
-  const searchProduct = useSelector((state)=>state.product.search);
-  const [stateProducts, setStateProducts] = useState([])
-  const [loading, setLoading] = useState(false)
-  const searchDebounce = useDebounce(searchProduct, 1000)
+  const searchProduct = useSelector((state) => state.product.search);
+  const [loading, setLoading] = useState(false);
+  const searchDebounce = useDebounce(searchProduct, 1000);
+  const [limit, setLimit] = useState(6);
   const arr = ["Nam", "Nu"];
-  const fetchProductAll = async (search) => {
-    const res = await ProductService.getAllProduct(search);
-    if(search && search.length > 0 || refSearch.current) {
-      console.log("res",res)
-      setStateProducts(res && res.data)
-    }else {
-      return res
-    }
+  const fetchProductAll = async (context) => {
+    console.log("context", context);
+    const limit = context && context.queryKey && context && context.queryKey[1];
+    const search =
+      context && context.queryKey && context && context.queryKey[2];
+    const res = await ProductService.getAllProduct(search, limit);
+    return res;
   };
-  useEffect(()=>{
-    if(refSearch.current){
-      setLoading(true)
-     fetchProductAll(searchDebounce)
-    }
-    refSearch.current =true
-    setLoading(false)
-  },[searchDebounce])
-  const { isLoading, data: products } = useQuery(
-    ["products"],
-    fetchProductAll,
-    { retry: 3, retryDelay: 1000 }
-  );
-  useEffect(() => {
-    if(products && products.data && products.data.length > 0) {
-      setStateProducts(products && products.data);
-    }
-  }, [products]);
-  
-  // console.log("state", stateProducts);
+
+  const {
+    isLoading,
+    data: products,
+    isPreviousData,
+  } = useQuery(["products", limit, searchDebounce], fetchProductAll, {
+    retry: 3,
+    retryDelay: 1000,
+    keepPreviousData: true,
+  });
+
+  console.log("isPreviousData", products);
   return (
     <Loading isLoading={isLoading || loading}>
       <div style={{ width: "1270px", margin: "0 auto" }}>
@@ -70,8 +60,9 @@ const HomePage = () => {
         >
           <SliderComponent arrImages={[slider1, slider2, slider3]} />
           <WrapperProducts>
-            {stateProducts && stateProducts.map(function (product) {
-                
+            {products &&
+              products.data &&
+              products.data.map(function (product) {
                 return (
                   <CardComponet
                     key={product._id}
@@ -97,8 +88,7 @@ const HomePage = () => {
             }}
           >
             <WrapperButtonMore
-              textbutton="Xem thêm"
-              type="outline"
+            textbutton={isPreviousData ? 'Load more' : "Xem thêm"} type="outline" 
               styleButton={{
                 border: "1px solid rgb(11, 116, 229)",
                 color: "rgb(11, 116, 229)",
@@ -106,7 +96,9 @@ const HomePage = () => {
                 height: "38px",
                 borderRadius: "4px",
               }}
+              disabled={products && products.total === (products.data && products.data.length) || products && products.totalPage ===1}
               styleTextButton={{ fontWeight: 500 }}
+              onClick={() => setLimit((prev) => prev + 6)}
             />
           </div>
         </div>
