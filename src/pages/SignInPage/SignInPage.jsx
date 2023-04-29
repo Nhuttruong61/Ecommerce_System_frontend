@@ -11,7 +11,7 @@ import ButtonComponent from "../../component/ButtonComponent/ButtonComponent";
 import InputForm from "../../component/InputForm/InputForm";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
@@ -26,13 +26,19 @@ const SignInPage = () => {
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const mutation = useMutationHooks((data) => UserService.loginUser(data));
   const { data, isLoading, isSuccess, isError } = mutation;
   // console.log( isLoading);
   useEffect(() => {
+    console.log("location", location);
     if (isSuccess) {
-      navigate("/");
+      if (location && location.state) {
+        navigate(location && location.state);
+      } else {
+        navigate("/");
+      }
       // console.log(data);
       localStorage.setItem(
         "access_token",

@@ -16,18 +16,18 @@ export const routes = [
     },
     {
         path: '/order',
+        page: OrderPage ,
+        isShowHeader: true
+        
+    },
+    {
+        path: '/products',
         page: ProductsPage,
         isShowHeader: true
 
     },
     {
-        path: '/products',
-        page: OrderPage ,
-        isShowHeader: true
-
-    },
-    {
-        path: '/type',
+        path: '/product/:type',
         page: TypeProductPage,
         isShowHeader: true
     },
@@ -46,7 +46,7 @@ export const routes = [
         isShowHeader: false
     },
     {
-        path: '/product-details',
+        path: '/product-details/:id',
         page: ProductDetailsPage,
         isShowHeader: true
     },

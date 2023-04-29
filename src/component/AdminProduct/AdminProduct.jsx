@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./style";
-import { Button, Form, Space } from "antd";
+import { Button, Form, Space,Select } from "antd";
 import TableComponent from "../TableComponent/TableComponent";
 import { PlusOutlined } from "@ant-design/icons";
 import InputComponet from "../InputComponet/InputComponent";
-import { getBase64 } from "../../utils";
+import { getBase64 ,renderOptions} from "../../utils";
 import * as ProductService from "../../services/ProductService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
@@ -37,6 +37,7 @@ function AdminProduct() {
     rating: "",
     description: "",
     image: "",
+    newType: ''
   });
   const [stateProductDetails, setStateProductDetails] = useState({
     name: "",
@@ -100,6 +101,10 @@ function AdminProduct() {
     }
     setIsLoadingUpdate(false);
   };
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct()
+    return res
+  }
 
   useEffect(() => {
     form.setFieldsValue({
@@ -152,6 +157,7 @@ function AdminProduct() {
     isError: isErrorDeletedMany,
   } = mutationDeletedMany;
   const queryProduct = useQuery(["products"], getAllProducts);
+  const typeProduct = useQuery({ queryKey: ['type-product'], queryFn: fetchAllTypeProduct })
   const { isLoading: isLoadingProducts, data: products } = queryProduct;
 
   const [form] = Form.useForm();
@@ -418,7 +424,16 @@ function AdminProduct() {
   };
 
   const onFinish = () => {
-    mutation.mutate(stateProduct, {
+    const params = {
+      name: stateProduct.name,
+      price: stateProduct.price,
+      description: stateProduct.description,
+      rating: stateProduct.rating,
+      image: stateProduct.image,
+      type: stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
+      countInStock: stateProduct.countInStock,
+    }
+    mutation.mutate(params, {
       onSettled: () => {
         queryProduct.refetch();
       },
@@ -472,6 +487,12 @@ function AdminProduct() {
       }
     );
   };
+  const handleChangeSelect = (value) => {
+    setStateProduct({
+      ...stateProduct,
+      type: value
+    })
+}
   return (
     <div>
       <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -556,12 +577,24 @@ function AdminProduct() {
                 },
               ]}
             >
-              <InputComponet
-                value={stateProduct.type}
-                onChange={handleOnchange}
-                name="type"
-              />
+            <Select
+            name="type"
+            // defaultValue="lucy"
+            // style={{ width: 120 }}
+            value={stateProduct.type}
+            onChange={handleChangeSelect}
+            options={renderOptions(typeProduct && typeProduct.data && typeProduct.data.data)}
+            />
             </Form.Item>
+            {stateProduct.type === 'add_type' && (
+              <Form.Item
+                label='New type'
+                name="newType"
+                rules={[{ required: true, message: 'Please input your type!' }]}
+              >
+                <InputComponet value={stateProduct.newType} onChange={handleOnchange} name="newType" />
+              </Form.Item>
+            )}
             <Form.Item
               label="Count InStock"
               name="countInStock"

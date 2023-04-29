@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TypeProduct from "../../component/TypeProduct/TypeProduct";
 import {
   WrapperButtonMore,
@@ -20,7 +20,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const searchDebounce = useDebounce(searchProduct, 1000);
   const [limit, setLimit] = useState(6);
-  const arr = ["Nam", "Nu"];
+  const [typeProducts, setTypeProducts] = useState([])
   const fetchProductAll = async (context) => {
     console.log("context", context);
     const limit = context && context.queryKey && context && context.queryKey[1];
@@ -29,7 +29,12 @@ const HomePage = () => {
     const res = await ProductService.getAllProduct(search, limit);
     return res;
   };
-
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct()
+    if(res && res.status === 'OK') {
+      setTypeProducts(res && res.data)
+    }
+  }
   const {
     isLoading,
     data: products,
@@ -41,11 +46,14 @@ const HomePage = () => {
   });
 
   console.log("isPreviousData", products);
+  useEffect(() => {
+    fetchAllTypeProduct()
+  }, [])
   return (
     <Loading isLoading={isLoading || loading}>
       <div style={{ width: "1270px", margin: "0 auto" }}>
         <WrapperTypeProduct>
-          {arr.map((item) => {
+          {typeProducts.map((item) => {
             return <TypeProduct name={item} key={item} />;
           })}
         </WrapperTypeProduct>
@@ -75,6 +83,7 @@ const HomePage = () => {
                     type={product.type}
                     selled={product.selled}
                     discount={product.discount}
+                    id={product._id}
                   />
                 );
               })}
@@ -88,7 +97,8 @@ const HomePage = () => {
             }}
           >
             <WrapperButtonMore
-            textbutton={isPreviousData ? 'Load more' : "Xem thêm"} type="outline" 
+              textbutton={isPreviousData ? "Load more" : "Xem thêm"}
+              type="outline"
               styleButton={{
                 border: "1px solid rgb(11, 116, 229)",
                 color: "rgb(11, 116, 229)",
@@ -96,7 +106,11 @@ const HomePage = () => {
                 height: "38px",
                 borderRadius: "4px",
               }}
-              disabled={products && products.total === (products.data && products.data.length) || products && products.totalPage ===1}
+              disabled={
+                (products &&
+                  products.total === (products.data && products.data.length)) ||
+                (products && products.totalPage === 1)
+              }
               styleTextButton={{ fontWeight: 500 }}
               onClick={() => setLimit((prev) => prev + 6)}
             />
