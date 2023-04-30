@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./style";
-import { Button, Form, Space,Select } from "antd";
+import { Button, Form, Space, Select } from "antd";
 import TableComponent from "../TableComponent/TableComponent";
 import { PlusOutlined } from "@ant-design/icons";
 import InputComponet from "../InputComponet/InputComponent";
-import { getBase64 ,renderOptions} from "../../utils";
+import { getBase64, renderOptions } from "../../utils";
 import * as ProductService from "../../services/ProductService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
@@ -37,7 +37,8 @@ function AdminProduct() {
     rating: "",
     description: "",
     image: "",
-    newType: ''
+    newType: "",
+    discount: "",
   });
   const [stateProductDetails, setStateProductDetails] = useState({
     name: "",
@@ -47,10 +48,19 @@ function AdminProduct() {
     rating: "",
     description: "",
     image: "",
+    discount: "",
   });
   const mutation = useMutationHooks((data) => {
-    const { name, image, type, countInStock, price, rating, description } =
-      data;
+    const {
+      name,
+      image,
+      type,
+      countInStock,
+      price,
+      rating,
+      description,
+      discount,
+    } = data;
     const res = ProductService.createProduct({
       name,
       image,
@@ -59,6 +69,7 @@ function AdminProduct() {
       price,
       rating,
       description,
+      discount,
     });
     return res;
   });
@@ -96,15 +107,16 @@ function AdminProduct() {
         rating: res && res.data && res.data.rating,
         description: res && res.data && res.data.description,
         image: res && res.data && res.data.image,
+        discount: res && res.data && res.data.discount,
       });
       // console.log(res);
     }
     setIsLoadingUpdate(false);
   };
   const fetchAllTypeProduct = async () => {
-    const res = await ProductService.getAllTypeProduct()
-    return res
-  }
+    const res = await ProductService.getAllTypeProduct();
+    return res;
+  };
 
   useEffect(() => {
     form.setFieldsValue({
@@ -114,6 +126,7 @@ function AdminProduct() {
       price: stateProductDetails.price,
       rating: stateProductDetails.rating,
       description: stateProductDetails.description,
+      discount: stateProductDetails.discount,
     });
   }, [form, stateProductDetails]);
 
@@ -157,7 +170,10 @@ function AdminProduct() {
     isError: isErrorDeletedMany,
   } = mutationDeletedMany;
   const queryProduct = useQuery(["products"], getAllProducts);
-  const typeProduct = useQuery({ queryKey: ['type-product'], queryFn: fetchAllTypeProduct })
+  const typeProduct = useQuery({
+    queryKey: ["type-product"],
+    queryFn: fetchAllTypeProduct,
+  });
   const { isLoading: isLoadingProducts, data: products } = queryProduct;
 
   const [form] = Form.useForm();
@@ -201,6 +217,7 @@ function AdminProduct() {
       image: "",
       type: "",
       countInStock: "",
+      discount: "",
     });
     form.resetFields();
   };
@@ -419,6 +436,7 @@ function AdminProduct() {
       rating: "",
       description: "",
       image: "",
+      discount: "",
     });
     form.resetFields();
   };
@@ -430,9 +448,13 @@ function AdminProduct() {
       description: stateProduct.description,
       rating: stateProduct.rating,
       image: stateProduct.image,
-      type: stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
+      discount: stateProduct.discount,
+      type:
+        stateProduct.type === "add_type"
+          ? stateProduct.newType
+          : stateProduct.type,
       countInStock: stateProduct.countInStock,
-    }
+    };
     mutation.mutate(params, {
       onSettled: () => {
         queryProduct.refetch();
@@ -490,9 +512,9 @@ function AdminProduct() {
   const handleChangeSelect = (value) => {
     setStateProduct({
       ...stateProduct,
-      type: value
-    })
-}
+      type: value,
+    });
+  };
   return (
     <div>
       <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -577,22 +599,28 @@ function AdminProduct() {
                 },
               ]}
             >
-            <Select
-            name="type"
-            // defaultValue="lucy"
-            // style={{ width: 120 }}
-            value={stateProduct.type}
-            onChange={handleChangeSelect}
-            options={renderOptions(typeProduct && typeProduct.data && typeProduct.data.data)}
-            />
+              <Select
+                name="type"
+                // defaultValue="lucy"
+                // style={{ width: 120 }}
+                value={stateProduct.type}
+                onChange={handleChangeSelect}
+                options={renderOptions(
+                  typeProduct && typeProduct.data && typeProduct.data.data
+                )}
+              />
             </Form.Item>
-            {stateProduct.type === 'add_type' && (
+            {stateProduct.type === "add_type" && (
               <Form.Item
-                label='New type'
+                label="New type"
                 name="newType"
-                rules={[{ required: true, message: 'Please input your type!' }]}
+                rules={[{ required: true, message: "Please input your type!" }]}
               >
-                <InputComponet value={stateProduct.newType} onChange={handleOnchange} name="newType" />
+                <InputComponet
+                  value={stateProduct.newType}
+                  onChange={handleOnchange}
+                  name="newType"
+                />
               </Form.Item>
             )}
             <Form.Item
@@ -609,6 +637,22 @@ function AdminProduct() {
                 value={stateProduct.countInStock}
                 onChange={handleOnchange}
                 name="countInStock"
+              />
+            </Form.Item>{" "}
+            <Form.Item
+              label="Discount"
+              name="discount"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your  count Discount!",
+                },
+              ]}
+            >
+              <InputComponet
+                value={stateProduct.discount}
+                onChange={handleOnchange}
+                name="discount"
               />
             </Form.Item>{" "}
             <Form.Item
@@ -766,6 +810,22 @@ function AdminProduct() {
                 name="countInStock"
               />
             </Form.Item>{" "}
+            <Form.Item
+            label="Discount"
+            name="discount"
+            rules={[
+              {
+                required: true,
+                message: "Please input your  count Discount!",
+              },
+            ]}
+          >
+            <InputComponet
+              value={stateProductDetails.discount}
+              onChange={handleOnchangeDetails}
+              name="discount"
+            />
+          </Form.Item>{" "}
             <Form.Item
               label="Price"
               name="price"

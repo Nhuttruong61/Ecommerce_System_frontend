@@ -1,18 +1,18 @@
-import { Checkbox } from "antd";
-import React, { useState } from "react";
+import { Checkbox, Form, message } from "antd";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   WrapperCountOrder,
   WrapperInfo,
   WrapperItemOrder,
   WrapperLeft,
   WrapperListOrder,
-  WrapperPriceDiscount,
+  WrapperStyleHeaderDilivery,
   WrapperRight,
   WrapperStyleHeader,
   WrapperTotal,
+
 } from "./style";
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import imag from "../../assets/images/logo-login.png";
 import {
   WrapperInputNumber,
   WrapperQualityProduct,
@@ -24,12 +24,31 @@ import {
   increaseAmount,
   removeAllOrderProduct,
   removeOrderProduct,
+  selectedOrder,
 } from "../../redux/slides/orderSlide";
-
+import { convertPrice } from "../../utils";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import * as UserService from "../../services/UserService";
+import { updateUser } from "../../redux/slides/userSlide";
+import ModalComponent from "../../component/ModalComponent/ModalComponent";
+import Loading from "../../component/LoadingComponet/LoadingComponet";
+import InputComponent from "../../component/InputComponet/InputComponent"
+import { useNavigate } from "react-router-dom";
+import StepComponent from '../../component/StepComponent/StepComponent';
 const OrderPage = () => {
   const order = useSelector((state) => state.order);
+  const user = useSelector((state) => state.user);
   const [listChecked, setListChecked] = useState([]);
+  const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
+  const [stateUserDetails, setStateUserDetails] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    city: "",
+  });
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const onChange = (e) => {
     if (listChecked.includes(e.target.value)) {
       const newListChecked = listChecked.filter(
@@ -66,19 +85,156 @@ const OrderPage = () => {
       setListChecked([]);
     }
   };
+  useEffect(() => {
+    dispatch(selectedOrder({ listChecked }));
+  }, [listChecked]);
+
+  useEffect(() => {
+    form.setFieldsValue(stateUserDetails);
+  }, [form, stateUserDetails]);
+
+  useEffect(() => {
+    if (isOpenModalUpdateInfo) {
+      setStateUserDetails({
+        city: user && user.city,
+        name: user && user.name,
+        address: user && user.address,
+        phone: user && user.phone,
+      });
+    }
+  }, [isOpenModalUpdateInfo]);
+const handleChangeAddress = () =>{
+  setIsOpenModalUpdateInfo(true)
+}
+  const priceMemo = useMemo(() => {
+    const result =
+      order &&
+      order.orderItemsSlected &&
+      order.orderItemsSlected.reduce((total, cur) => {
+        return total + cur.price * cur.amount;
+      }, 0);
+    return result;
+  }, [order]);
+
+  const priceDiscountMemo = useMemo(() => {
+    const result =
+      order &&
+      order.orderItemsSlected &&
+      order.orderItemsSlected.reduce((total, cur) => {
+        return total + cur.discount * cur.amount;
+      }, 0);
+    if (Number(result)) {
+      return result;
+    }
+    return 0;
+  }, [order]);
+
+  const diliveryPriceMemo = useMemo(() => {
+    if(priceMemo >= 20000 && priceMemo < 500000){
+      return 10000;
+    }else if(priceMemo >= 500000 || order && order.orderItemsSlected && order.orderItemsSlected.length
+      === 0) {
+      return 0;
+    } else {
+      return 20000;
+    }
+  }, [priceMemo]);
+
+  const totalPriceMemo = useMemo(() => {
+    return (
+      Number(priceMemo) - Number(priceDiscountMemo) + Number(diliveryPriceMemo)
+    );
+  }, [priceMemo, priceDiscountMemo, diliveryPriceMemo]);
 
   const handleRemoveAllOrder = () => {
     if (listChecked && listChecked.length > 1) {
       dispatch(removeAllOrderProduct({ listChecked }));
     }
   };
-  console.log("order", order);
+  const handleAddCard = () => {
+    if (!order || !order.orderItemsSlected || !order.orderItemsSlected.length) {
+      message.error("Vui lòng chọn sản phẩm");
+    } else if (
+      (!user && !user.phone) ||
+      !user.address ||
+      !user.name ||
+      !user.city
+    ) {
+      setIsOpenModalUpdateInfo(true);
+    } else {
+     navigate("/payment")
+    }
+  };
+
+  const mutationUpdate = useMutationHooks((data) => {
+    const { id, token, ...rests } = data;
+    const res = UserService.updateUser(id, { ...rests }, token);
+    return res;
+  });
+
+  const { isLoading, data } = mutationUpdate;
+
+  const handleCancleUpdate = () => {
+    setStateUserDetails({
+      name: "",
+      email: "",
+      phone: "",
+      isAdmin: false,
+    });
+    form.resetFields();
+    setIsOpenModalUpdateInfo(false);
+  };
+  const handleUpdateInforUser = () => {
+    const { name, address, city, phone } = stateUserDetails;
+    if (name && address && city && phone) {
+      mutationUpdate.mutate(
+        {
+          id: user && user.id,
+          token: user && user.access_token,
+          ...stateUserDetails,
+        },
+        {
+          onSuccess: () => {
+            dispatch(updateUser({ name, address, city, phone }));
+            setIsOpenModalUpdateInfo(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleOnchangeDetails = (e) => {
+    setStateUserDetails({
+      ...stateUserDetails,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const itemsDelivery = [
+    {
+      title: '20.000 VND',
+      description: 'Dưới 200.000 VND',
+    },
+    {
+      title: '10.000 VND',
+      description: 'Từ 200.000 VND đến dưới 500.000 VND',
+    },
+    {
+      title: '0 VND',
+      description : 'Trên 500.000 VND',
+    },
+  ]
+  // console.log("order", order);
   return (
     <div style={{ background: "#f5f5fa", with: "100%", height: "100vh" }}>
       <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
         <h3>Giỏ hàng</h3>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <WrapperLeft>
+          <WrapperStyleHeaderDilivery>
+              <StepComponent items={itemsDelivery} current={diliveryPriceMemo === 10000 
+                ? 2 : diliveryPriceMemo === 20000 ? 1 
+                : order.orderItemsSlected.length === 0 ? 0:  3}/>
+            </WrapperStyleHeaderDilivery>
             <WrapperStyleHeader>
               <span style={{ display: "inline-block", width: "390px" }}>
                 <Checkbox
@@ -120,6 +276,7 @@ const OrderPage = () => {
               {order &&
                 order.orderItems &&
                 order.orderItems.map((order) => {
+                  console.log("check", order);
                   return (
                     <WrapperItemOrder>
                       <div
@@ -164,7 +321,7 @@ const OrderPage = () => {
                       >
                         <span>
                           <span style={{ fontSize: "13px", color: "#242424" }}>
-                            {order && order.price}
+                            {convertPrice(order && order.price)}
                           </span>
                         </span>
                         <WrapperCountOrder>
@@ -215,10 +372,12 @@ const OrderPage = () => {
                             fontWeight: 500,
                           }}
                         >
-                          {order &&
-                            order.price &&
-                            order.amount &&
-                            order.price * order.amount}
+                          {convertPrice(
+                            order &&
+                              order.price &&
+                              order.amount &&
+                              order.price * order.amount
+                          )}
                         </span>
                         <DeleteOutlined
                           style={{ cursor: "pointer" }}
@@ -233,6 +392,15 @@ const OrderPage = () => {
             </WrapperListOrder>
           </WrapperLeft>
           <WrapperRight>
+          <WrapperInfo>
+           <div>
+           <span style={{fontWeight: 600}}>Địa chỉ: </span>
+           <span style={{color: "blue"}}>
+           {`${user && user.address} ${user.city}`}
+         </span>
+         <span onClick={handleChangeAddress} style={{color: "red", cursor: "pointer"}}> Thay đổi</span>
+           </div>
+          </WrapperInfo>
             <div style={{ width: "100%" }}>
               <WrapperInfo>
                 <div
@@ -250,7 +418,15 @@ const OrderPage = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    0
+                    <span
+                      style={{
+                        color: "#000",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {convertPrice(priceMemo)}
+                    </span>
                   </span>
                 </div>
                 <div
@@ -267,27 +443,7 @@ const OrderPage = () => {
                       fontSize: "14px",
                       fontWeight: "bold",
                     }}
-                  >
-                    0
-                  </span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span>Thuế</span>
-                  <span
-                    style={{
-                      color: "#000",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    0
-                  </span>
+                  >{`${priceDiscountMemo} %`}</span>
                 </div>
                 <div
                   style={{
@@ -297,29 +453,13 @@ const OrderPage = () => {
                   }}
                 >
                   <span>Phí giao hàng</span>
-                  <span
-                    style={{
-                      color: "#000",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    0
-                  </span>
+                  <span style={{color: '#000', fontSize: '14px', fontWeight: 'bold'}}>{convertPrice(diliveryPriceMemo)}</span>
                 </div>
               </WrapperInfo>
               <WrapperTotal>
                 <span>Tổng tiền</span>
                 <span style={{ display: "flex", flexDirection: "column" }}>
-                  <span
-                    style={{
-                      color: "rgb(254, 56, 52)",
-                      fontSize: "24px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    0213
-                  </span>
+                <span style={{color: 'rgb(254, 56, 52)', fontSize: '24px', fontWeight: 'bold'}}>{convertPrice(totalPriceMemo)}</span>
                   <span style={{ color: "#000", fontSize: "11px" }}>
                     (Đã bao gồm VAT nếu có)
                   </span>
@@ -327,7 +467,7 @@ const OrderPage = () => {
               </WrapperTotal>
             </div>
             <ButtonComponent
-              // onClick={() => handleAddCard(productDetails, numProduct)}
+            onClick={() => handleAddCard()}
               size={40}
               styleButton={{
                 background: "rgb(255, 57, 69)",
@@ -346,6 +486,48 @@ const OrderPage = () => {
           </WrapperRight>
         </div>
       </div>
+      <ModalComponent title="Cập nhật thông tin giao hàng" open={isOpenModalUpdateInfo} onCancel={handleCancleUpdate} onOk={handleUpdateInforUser}>
+      <Loading isLoading={isLoading}>
+      <Form
+          name="basic"
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 20 }}
+          // onFinish={onUpdateUser}
+          autoComplete="on"
+          form={form}
+        >
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: 'Please input your name!' }]}
+          >
+            <InputComponent value={stateUserDetails['name']} onChange={handleOnchangeDetails} name="name" />
+          </Form.Item>
+          <Form.Item
+            label="City"
+            name="city"
+            rules={[{ required: true, message: 'Please input your city!' }]}
+          >
+            <InputComponent value={stateUserDetails['city']} onChange={handleOnchangeDetails} name="city" />
+          </Form.Item>
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[{ required: true, message: 'Please input your  phone!' }]}
+          >
+            <InputComponent value={stateUserDetails.phone} onChange={handleOnchangeDetails} name="phone" />
+          </Form.Item>
+
+          <Form.Item
+            label="Adress"
+            name="address"
+            rules={[{ required: true, message: 'Please input your  address!' }]}
+          >
+            <InputComponent value={stateUserDetails.address} onChange={handleOnchangeDetails} name="address" />
+          </Form.Item>
+        </Form>
+      </Loading>
+    </ModalComponent>
     </div>
   );
 };

@@ -63,7 +63,7 @@ function AdminUser() {
     );
   };
   const getAllUser = async () => {
-    const res = await UserService.getAllUser();
+    const res = await UserService.getAllUser(user && user.access_token);
     return res;
   };
   const fetchDetailsUser = async (rowSelected) => {

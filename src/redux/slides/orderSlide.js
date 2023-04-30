@@ -3,6 +3,7 @@ import { addOrderRedux } from "../../utils";
 
 const initialState = {
   orderItems: [],
+  orderItemsSlected: [],
   shippingAddress: {},
   paymentMethod: "",
   itemsPrice: 0,
@@ -21,14 +22,19 @@ export const orderSlide = createSlice({
   initialState,
   reducers: {
     addOrderProduct: (state, action) => {
-        console.log({state, action});
-      const {orderItem} =action.payload
-      const itemOrder = state && state.orderItems && state.orderItems.find((item)=>item && item.product ===orderItem.product)
-        if(itemOrder){
-            itemOrder.amount += orderItem && orderItem.amount
-        } else {
-            state.orderItems.push(orderItem)
-        }
+      console.log({ state, action });
+      const { orderItem } = action.payload;
+      const itemOrder =
+        state &&
+        state.orderItems &&
+        state.orderItems.find(
+          (item) => item && item.product === orderItem.product
+        );
+      if (itemOrder) {
+        itemOrder.amount += orderItem && orderItem.amount;
+      } else {
+        state.orderItems.push(orderItem);
+      }
     },
     increaseAmount: (state, action) => {
       const { idProduct } = action.payload;
@@ -37,7 +43,16 @@ export const orderSlide = createSlice({
         state.orderItems &&
         state.orderItems.find((item) => item.product === idProduct);
 
+      const itemOrderSelected =
+        state &&
+        state.orderItemsSlected &&
+        state.orderItemsSlected.find(
+          (item) => item && item.product === idProduct
+        );
       itemOrder.amount++;
+      if (itemOrderSelected) {
+        itemOrderSelected.amount++;
+      }
     },
     decreaseAmount: (state, action) => {
       const { idProduct } = action.payload;
@@ -46,7 +61,16 @@ export const orderSlide = createSlice({
         state.orderItems &&
         state.orderItems.find((item) => item.product === idProduct);
 
+      const itemOrderSelected =
+        state &&
+        state.orderItemsSlected &&
+        state.orderItemsSlected.find(
+          (item) => item && item.product === idProduct
+        );
       itemOrder.amount--;
+      if (itemOrderSelected) {
+        itemOrderSelected.amount--;
+      }
     },
     removeOrderProduct: (state, action) => {
       const { idProduct } = action.payload;
@@ -56,7 +80,15 @@ export const orderSlide = createSlice({
         state.orderItems &&
         state.orderItems.filter((item) => item.product !== idProduct);
 
+      const itemOrderSeleted =
+        state &&
+        state.orderItemsSlected &&
+        state.orderItemsSlected.filter(
+          (item) => item && item.product !== idProduct
+        );
+
       state.orderItems = itemOrder;
+      state.orderItemsSlected = itemOrderSeleted;
     },
     removeAllOrderProduct: (state, action) => {
       const { listChecked } = action.payload;
@@ -67,7 +99,22 @@ export const orderSlide = createSlice({
         listChecked &&
         state.orderItems.filter((item) => !listChecked.includes(item.product));
 
+      const itemOrdersSelected =
+        state &&
+        state.orderItems &&
+        state.orderItems.filter((item) => !listChecked.includes(item.product));
       state.orderItems = itemOrders;
+      state.orderItemsSlected = itemOrdersSelected;
+    },
+    selectedOrder: (state, action) => {
+      const { listChecked } = action.payload;
+      const orderSelected = [];
+      state.orderItems.forEach((order) => {
+        if (listChecked.includes(order.product)) {
+          orderSelected.push(order);
+        }
+      });
+      state.orderItemsSlected = orderSelected;
     },
   },
 });
@@ -79,6 +126,7 @@ export const {
   decreaseAmount,
   removeOrderProduct,
   removeAllOrderProduct,
+  selectedOrder,
 } = orderSlide.actions;
 
 export default orderSlide.reducer;

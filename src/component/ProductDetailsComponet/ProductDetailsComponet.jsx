@@ -20,6 +20,7 @@ import * as ProductService from "../../services/ProductService";
 import Loading from "../LoadingComponet/LoadingComponet";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addOrderProduct } from "../../redux/slides/orderSlide";
+import { convertPrice } from "../../utils";
 
 
 const ProductDetailsComponent = ({ idProduct }) => {
@@ -149,7 +150,7 @@ console.log('locations', location)
           </div>
           <WrapperPriceProduct>
             <WrapperPriceTextProduct>
-              {productDetails && productDetails.price}
+              {convertPrice(productDetails && productDetails.price)}
             </WrapperPriceTextProduct>
           </WrapperPriceProduct>
           <WrapperAddressProduct>
