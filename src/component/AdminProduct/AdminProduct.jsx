@@ -29,7 +29,7 @@ function AdminProduct() {
   // const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
-  const [stateProduct, setStateProduct] = useState({
+  const inittial = () => ({
     name: "",
     type: "",
     countInStock: "",
@@ -40,16 +40,8 @@ function AdminProduct() {
     newType: "",
     discount: "",
   });
-  const [stateProductDetails, setStateProductDetails] = useState({
-    name: "",
-    type: "",
-    countInStock: "",
-    price: "",
-    rating: "",
-    description: "",
-    image: "",
-    discount: "",
-  });
+  const [stateProduct, setStateProduct] = useState(inittial())
+  const [stateProductDetails, setStateProductDetails] = useState(inittial())
   const mutation = useMutationHooks((data) => {
     const {
       name,
@@ -119,16 +111,12 @@ function AdminProduct() {
   };
 
   useEffect(() => {
-    form.setFieldsValue({
-      name: stateProductDetails.name,
-      type: stateProductDetails.type,
-      countInStock: stateProductDetails.countInStock,
-      price: stateProductDetails.price,
-      rating: stateProductDetails.rating,
-      description: stateProductDetails.description,
-      discount: stateProductDetails.discount,
-    });
-  }, [form, stateProductDetails]);
+    if(!isModalOpen) {
+      form.setFieldsValue(stateProductDetails)
+    }else {
+      form.setFieldsValue(inittial())
+    }
+  }, [form, stateProductDetails, isModalOpen])
 
   useEffect(() => {
     if (rowSelected && isOpenDrawer) {
@@ -136,7 +124,7 @@ function AdminProduct() {
       fetchDetailsProducts(rowSelected);
     }
   }, [rowSelected, isOpenDrawer]);
-  console.log("stateproductdetail", stateProductDetails);
+  // console.log("stateproductdetail", stateProductDetails);
   const handleDetailsProduct = () => {
     setIsOpenDrawer(true);
   };

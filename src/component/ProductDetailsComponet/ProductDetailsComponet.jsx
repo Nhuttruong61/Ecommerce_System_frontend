@@ -1,6 +1,5 @@
 import { Col, Image, Rate, Row } from "antd";
 import React, { useState } from "react";
-import imageProductSmall from "../../assets/images/logo-signup.png";
 import {
   WrapperStyleImageSmall,
   WrapperStyleColImage,
@@ -22,7 +21,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { addOrderProduct } from "../../redux/slides/orderSlide";
 import { convertPrice } from "../../utils";
 
-
 const ProductDetailsComponent = ({ idProduct }) => {
   const [numProduct, setNumProduct] = useState(1);
   const navigate = useNavigate();
@@ -39,7 +37,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
       return res.data;
     }
   };
-console.log('locations', location)
+  console.log("locations", location);
   const handleChangeCount = (type) => {
     if (type === "increase") {
       setNumProduct(numProduct + 1);
@@ -56,11 +54,13 @@ console.log('locations', location)
         dispatch(
           addOrderProduct({
             orderItem: {
-              name: productDetails.name,
+              name: productDetails && productDetails.name,
               amount: numProduct,
-              image: productDetails.image,
-              price: productDetails.price,
-              product: productDetails._id,
+              image: productDetails && productDetails.image,
+              price: productDetails && productDetails.price,
+              product: productDetails && productDetails._id,
+              discount: productDetails && productDetails.discount,
+              countInstock: productDetails && productDetails.countInStock,
             },
           })
         );
@@ -72,7 +72,7 @@ console.log('locations', location)
     fetchGetDetailsProduct,
     { enabled: !!idProduct }
   );
-  console.log("ProductDetail", productDetails, user)
+  console.log("ProductDetail", productDetails, user);
 
   return (
     <Loading isLoading={isLoading}>
@@ -96,7 +96,7 @@ console.log('locations', location)
             </WrapperStyleColImage>
             <WrapperStyleColImage span={4}>
               <WrapperStyleImageSmall
-                src={imageProductSmall}
+                src={productDetails && productDetails.image}
                 alt="image small"
                 preview={false}
               />
@@ -104,7 +104,7 @@ console.log('locations', location)
 
             <WrapperStyleColImage span={4}>
               <WrapperStyleImageSmall
-                src={imageProductSmall}
+                src={productDetails && productDetails.image}
                 alt="image small"
                 preview={false}
               />
@@ -112,7 +112,7 @@ console.log('locations', location)
 
             <WrapperStyleColImage span={4}>
               <WrapperStyleImageSmall
-                src={imageProductSmall}
+                src={productDetails && productDetails.image}
                 alt="image small"
                 preview={false}
               />
@@ -120,7 +120,7 @@ console.log('locations', location)
 
             <WrapperStyleColImage span={4}>
               <WrapperStyleImageSmall
-                src={imageProductSmall}
+                src={productDetails && productDetails.image}
                 alt="image small"
                 preview={false}
               />
@@ -128,7 +128,7 @@ console.log('locations', location)
 
             <WrapperStyleColImage span={4}>
               <WrapperStyleImageSmall
-                src={imageProductSmall}
+                src={productDetails && productDetails.image}
                 alt="image small"
                 preview={false}
               />
@@ -169,7 +169,10 @@ console.log('locations', location)
             <div style={{ marginBottom: "10px" }}>Số lượng</div>
             <WrapperQualityProduct>
               <button style={{ border: "none", background: "transparent" }}>
-                <MinusOutlined style={{ color: "#000", fontSize: "20px" }}  onClick={() => handleChangeCount('decrease')} />
+                <MinusOutlined
+                  style={{ color: "#000", fontSize: "20px" }}
+                  onClick={() => handleChangeCount("decrease")}
+                />
               </button>
               <WrapperInputNumber
                 defaultValue={1}
@@ -195,7 +198,7 @@ console.log('locations', location)
                 border: "none",
                 borderRadius: "4px",
               }}
-              onClick= {handleAddOrderProduct}
+              onClick={handleAddOrderProduct}
               textbutton={"Chọn mua"}
               styleTextButton={{
                 color: "#fff",

@@ -22,7 +22,7 @@ const HomePage = () => {
   const [limit, setLimit] = useState(6);
   const [typeProducts, setTypeProducts] = useState([])
   const fetchProductAll = async (context) => {
-    console.log("context", context);
+    // console.log("context", context);
     const limit = context && context.queryKey && context && context.queryKey[1];
     const search =
       context && context.queryKey && context && context.queryKey[2];
@@ -45,7 +45,7 @@ const HomePage = () => {
     keepPreviousData: true,
   });
 
-  console.log("isPreviousData", products);
+  // console.log("isPreviousData", products);
   useEffect(() => {
     fetchAllTypeProduct()
   }, [])

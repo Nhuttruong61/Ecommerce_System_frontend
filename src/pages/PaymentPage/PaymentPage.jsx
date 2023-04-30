@@ -74,7 +74,8 @@ const PaymentPage = () => {
       order &&
       order.orderItemsSlected &&
       order.orderItemsSlected.reduce((total, cur) => {
-        return total + cur.discount * cur.amount;
+        const totalDiscount = cur.discount ? cur.discount : 0;
+        return total + (priceMemo * (totalDiscount * cur.amount)) / 100;
       }, 0);
     if (Number(result)) {
       return result;
@@ -305,7 +306,9 @@ const PaymentPage = () => {
                         fontSize: "14px",
                         fontWeight: "bold",
                       }}
-                    >{`${priceDiscountMemo} %`}</span>
+                    >
+                      {convertPrice(priceDiscountMemo)}
+                    </span>
                   </div>
                   <div
                     style={{
