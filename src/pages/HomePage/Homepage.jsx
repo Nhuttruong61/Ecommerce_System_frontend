@@ -64,7 +64,7 @@ const HomePage = () => {
       >
         <div
           id="container"
-          style={{ height: "1000px", width: "1270px", margin: "0 auto" }}
+          style={{ height: "100%", width: "1270px", margin: "0 auto" }}
         >
           <SliderComponent arrImages={[slider1, slider2, slider3]} />
           <WrapperProducts>

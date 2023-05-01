@@ -95,7 +95,7 @@ function AdminUser() {
       fetchDetailsUser(rowSelected);
     }
   }, [rowSelected, isOpenDrawer]);
-  console.log("stateUserdetail", stateUserDetails);
+  // console.log("stateUserdetail", stateUserDetails);
   const handleDetailsProduct = () => {
     setIsOpenDrawer(true);
   };
@@ -329,7 +329,7 @@ function AdminUser() {
         },
       }
     );
-    console.log("delete");
+    // console.log("delete");
   };
 
   const handleOnchangeDetails = (e) => {

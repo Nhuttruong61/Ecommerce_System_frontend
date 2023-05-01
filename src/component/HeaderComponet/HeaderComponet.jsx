@@ -162,7 +162,7 @@ const HeaderComponet = ({ isHiddenSearch = false, isHiddenCart = false }) => {
               style={{ cursor: "pointer" }}
             >
               <Badge
-                count={order && order.orderItems && order.orderItems.length}
+                count={ order && order.orderItems && order.orderItems.length}
                 size="small"
               >
                 <ShoppingCartOutlined

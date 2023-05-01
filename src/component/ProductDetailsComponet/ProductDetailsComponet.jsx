@@ -1,5 +1,5 @@
 import { Col, Image, Rate, Row } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   WrapperStyleImageSmall,
   WrapperStyleColImage,
@@ -18,18 +18,23 @@ import { useQuery } from "react-query";
 import * as ProductService from "../../services/ProductService";
 import Loading from "../LoadingComponet/LoadingComponet";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addOrderProduct } from "../../redux/slides/orderSlide";
-import { convertPrice } from "../../utils";
-
+import { addOrderProduct, resetOrder } from "../../redux/slides/orderSlide";
+import { convertPrice, initFacebookSDK } from "../../utils";
+import * as message from "../../component/Mesage/Message";
+import LikeButtonComponent from "../LikeButtonComponent/LikeButtonComponent";
+import CommentComponent from "../CommentComponent/CommentComponent";
 const ProductDetailsComponent = ({ idProduct }) => {
   const [numProduct, setNumProduct] = useState(1);
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
+  const order = useSelector((state) => state.order);
+  const [errorLimitOrder, setErrorLimitOrder] = useState(false);
   const dispatch = useDispatch();
   const onChange = (value) => {
     setNumProduct(Number(value));
   };
+
   const fetchGetDetailsProduct = async (context) => {
     const id = context && context.queryKey && context && context.queryKey[1];
     if (id) {
@@ -37,20 +42,69 @@ const ProductDetailsComponent = ({ idProduct }) => {
       return res.data;
     }
   };
-  console.log("locations", location);
-  const handleChangeCount = (type) => {
+  useEffect(() => {
+    initFacebookSDK();
+  }, []);
+
+  useEffect(() => {
+    const orderRedux =
+      order &&
+      order.orderItems &&
+      order.orderItems.find(
+        (item) => item.product === productDetails && productDetails._id
+      );
+    if (
+      ((orderRedux && orderRedux.amount + numProduct) <= orderRedux &&
+        orderRedux.countInstock) ||
+      (!orderRedux && productDetails && productDetails.countInStock > 0)
+    ) {
+      setErrorLimitOrder(false);
+    }
+    if (productDetails && productDetails.countInStock === 0) {
+      setErrorLimitOrder(true);
+    }
+  }, [numProduct]);
+
+  useEffect(() => {
+    if (order.isSucessOrder) {
+      message.success("Đã thêm vào giỏ hàng");
+    }
+    return () => {
+      dispatch(resetOrder());
+    };
+  }, [order.isSucessOrder]);
+
+  const handleChangeCount = (type, limited) => {
     if (type === "increase") {
-      setNumProduct(numProduct + 1);
+      if (!limited) {
+        setNumProduct(numProduct + 1);
+      }
     } else {
-      setNumProduct(numProduct - 1);
+      if (!limited) {
+        setNumProduct(numProduct - 1);
+      }
     }
   };
-
+  const { isLoading, data: productDetails } = useQuery(
+    ["product-details", idProduct],
+    fetchGetDetailsProduct,
+    { enabled: !!idProduct }
+  );
   const handleAddOrderProduct = () => {
     if (!user || !user.id) {
       navigate("/sign-in", { state: location && location.pathname });
     } else {
-      if (productDetails) {
+      const orderRedux =
+        order &&
+        order.orderItems &&
+        order.orderItems.find(
+          (item) => item.product === productDetails && productDetails._id
+        );
+      if (
+        ((orderRedux && orderRedux.amount + numProduct) <= orderRedux &&
+          orderRedux.countInstock) ||
+        (!orderRedux && productDetails && productDetails.countInStock > 0)
+      ) {
         dispatch(
           addOrderProduct({
             orderItem: {
@@ -64,15 +118,11 @@ const ProductDetailsComponent = ({ idProduct }) => {
             },
           })
         );
+      } else {
+        setErrorLimitOrder(true);
       }
     }
   };
-  const { isLoading, data: productDetails } = useQuery(
-    ["product-details", idProduct],
-    fetchGetDetailsProduct,
-    { enabled: !!idProduct }
-  );
-  console.log("ProductDetail", productDetails, user);
 
   return (
     <Loading isLoading={isLoading}>
@@ -158,6 +208,13 @@ const ProductDetailsComponent = ({ idProduct }) => {
             <span className="address">{user && user.address}</span> -
             <span className="change-address">Đổi địa chỉ</span>
           </WrapperAddressProduct>
+          <LikeButtonComponent
+            dataHref={
+              process.env.REACY_APP_IS_LOCAL
+                ? "https://developers.facebook.com/docs/plugins/"
+                : window.location.href
+            }
+          />
           <div
             style={{
               margin: "10px 0 20px",
@@ -168,44 +225,62 @@ const ProductDetailsComponent = ({ idProduct }) => {
           >
             <div style={{ marginBottom: "10px" }}>Số lượng</div>
             <WrapperQualityProduct>
-              <button style={{ border: "none", background: "transparent" }}>
-                <MinusOutlined
-                  style={{ color: "#000", fontSize: "20px" }}
-                  onClick={() => handleChangeCount("decrease")}
-                />
+              <button
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleChangeCount("decrease", numProduct === 1)}
+              >
+                <MinusOutlined style={{ color: "#000", fontSize: "20px" }} />
               </button>
               <WrapperInputNumber
-                defaultValue={1}
                 onChange={onChange}
+                defaultValue={1}
+                max={productDetails && productDetails.countInStock}
+                min={1}
                 value={numProduct}
                 size="small"
               />
-              <button style={{ border: "none", background: "transparent" }}>
-                <PlusOutlined
-                  style={{ color: "#000", fontSize: "20px" }}
-                  onClick={() => handleChangeCount("increase")}
-                />
+              <button
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  handleChangeCount(
+                    "increase",
+                    numProduct === productDetails && productDetails.countInStock
+                  )
+                }
+              >
+                <PlusOutlined style={{ color: "#000", fontSize: "20px" }} />
               </button>
             </WrapperQualityProduct>
           </div>
           <div style={{ display: "flex", aliggItems: "center", gap: "12px" }}>
-            <ButtonComponent
-              size={40}
-              styleButton={{
-                background: "rgb(255, 57, 69)",
-                height: "48px",
-                width: "220px",
-                border: "none",
-                borderRadius: "4px",
-              }}
-              onClick={handleAddOrderProduct}
-              textbutton={"Chọn mua"}
-              styleTextButton={{
-                color: "#fff",
-                fontSize: "15px",
-                fontWeight: "700",
-              }}
-            ></ButtonComponent>
+            <div>
+              <ButtonComponent
+                size={40}
+                styleButton={{
+                  background: "rgb(255, 57, 69)",
+                  height: "48px",
+                  width: "220px",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+                onClick={handleAddOrderProduct}
+                textbutton={"Chọn mua"}
+                styleTextButton={{
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "700",
+                }}
+              ></ButtonComponent>
+            </div>
+
             <ButtonComponent
               size={40}
               styleButton={{
@@ -220,6 +295,14 @@ const ProductDetailsComponent = ({ idProduct }) => {
             ></ButtonComponent>
           </div>
         </Col>
+        <CommentComponent
+          dataHref={
+            process.env.REACY_APP_IS_LOCAL
+              ? "https://developers.facebook.com/docs/plugins/comments#configurator"
+              : window.location.href
+          }
+          width="1270"
+        />
       </Row>
     </Loading>
   );

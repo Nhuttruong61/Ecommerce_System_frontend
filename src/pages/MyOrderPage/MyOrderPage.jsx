@@ -18,6 +18,7 @@ import { message } from "antd";
 
 const MyOrderPage = () => {
   const location = useLocation();
+  console.log("state", location);
   const { state } = location;
   const navigate = useNavigate();
   const fetchMyOrder = async () => {
@@ -27,7 +28,6 @@ const MyOrderPage = () => {
     );
     return res.data;
   };
-
   const queryOrder = useQuery(
     { queryKey: ["orders"], queryFn: fetchMyOrder },
     {
@@ -73,7 +73,9 @@ const MyOrderPage = () => {
   useEffect(() => {
     if (isSuccessCancel && dataCancel && dataCancel.status === "OK") {
       message.success();
-    } else if (isErrorCancle) {
+    } else if(isSuccessCancel && dataCancel && dataCancel.status === 'ERR') {
+      message.error(dataCancel && dataCancel.message)
+    }else if (isErrorCancle) {
       message.error();
     }
   }, [isErrorCancle, isSuccessCancel]);
@@ -83,7 +85,7 @@ const MyOrderPage = () => {
       data &&
       data.map((order) => {
         return (
-          <WrapperHeaderItem>
+          <WrapperHeaderItem key={order && order._id}>
             <img
               src={order && order.image}
               style={{
@@ -115,14 +117,16 @@ const MyOrderPage = () => {
       })
     );
   };
+  console.log("data", data)
   return (
     <Loading isLoading={isLoading || isLoadingCancel}>
       <WrapperContainer>
         <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
           <h4>Đơn hàng của tôi</h4>
           <WrapperListOrder>
-            {data &&
-              data.map((order) => {
+          
+          {data &&
+            data.map((order) => {
                 return (
                   <WrapperItemOrder key={order && order._id}>
                     <WrapperStatus>
