@@ -15,7 +15,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
-import * as message from "../../component/Mesage/Message";
 import jwt_decode from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../../redux/slides/userSlide";
@@ -33,7 +32,7 @@ const SignInPage = () => {
   const { data, isLoading, isSuccess, isError } = mutation;
   // console.log( isLoading);
   useEffect(() => {
-    console.log("location", location);
+    // console.log("location", location);
     if (isSuccess) {
       if (location && location.state) {
         navigate(location && location.state);
@@ -45,6 +44,7 @@ const SignInPage = () => {
         "access_token",
         JSON.stringify(data && data.access_token)
       );
+      
       if (data && data.access_token) {
         const decoded = jwt_decode(data && data.access_token);
         // console.log("decoded", decoded);
@@ -60,7 +60,6 @@ const SignInPage = () => {
   const handleGetDetailsUser = async (id, token) => {
     const res = await UserService.getDetailsUser(id, token);
     dispatch(updateUser({ ...(res && res.data), access_token: token }));
-    console.log(res);
   };
   const handleSignIn = () => {
     mutation.mutate({ email, password });

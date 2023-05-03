@@ -23,7 +23,7 @@ export const orderSlide = createSlice({
   initialState,
   reducers: {
     addOrderProduct: (state, action) => {
-      console.log({ state, action });
+      // console.log({ state, action });
       const { orderItem } = action.payload;
       const itemOrder =
         state &&
@@ -31,7 +31,7 @@ export const orderSlide = createSlice({
         state.orderItems.find(
           (item) => item && item.product === orderItem.product
         );
-        console.log('itemOrder', itemOrder)
+        // console.log('itemOrder', itemOrder)
       if (itemOrder) {
         if(itemOrder.amount <= itemOrder.countInstock) {
           itemOrder.amount += orderItem && orderItem.amount

@@ -33,7 +33,7 @@ const TypeProductPage = () => {
     }
   };
 
-  console.log("Search", searchProduct);
+  // console.log("Search", searchProduct);
   useEffect(() => {
     setType(state);
   }, [state]);

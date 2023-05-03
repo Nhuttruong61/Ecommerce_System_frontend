@@ -26,7 +26,6 @@ function AdminProduct() {
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const user = useSelector((state) => state && state.user);
-  // const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
   const inittial = () => ({
@@ -65,7 +64,6 @@ function AdminProduct() {
     });
     return res;
   });
-  // console.log("rowSelected", rowSelected);
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
     const res = ProductService.updateProduct(id, token, { ...rests });
@@ -85,7 +83,6 @@ function AdminProduct() {
   });
   const getAllProducts = async () => {
     const res = await ProductService.getAllProduct();
-    // console.log('res', res);
     return res;
   };
   const fetchDetailsProducts = async (rowSelected) => {
@@ -325,20 +322,6 @@ function AdminProduct() {
         }, 100);
       }
     },
-    //   render: (text) =>
-    //     searchedColumn === dataIndex ? (
-    //       <Highlighter
-    //         highlightStyle={{
-    //           backgroundColor: '#ffc069',
-    //           padding: 0,
-    //         }}
-    //         searchWords={[searchText]}
-    //         autoEscape
-    //         textToHighlight={text ? text.toString() : ''}
-    //       />
-    //     ) : (
-    //       text
-    //     ),
   });
   const columns = [
     {
@@ -412,7 +395,7 @@ function AdminProduct() {
         },
       }
     );
-    console.log("delete");
+    // console.log("delete");
   };
   const handleCancel = () => {
     setIsModalOpen(false);

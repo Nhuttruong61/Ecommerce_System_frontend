@@ -8,7 +8,7 @@ import * as UserService from "./services/UserService";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "./redux/slides/userSlide";
 import Loading from "./component/LoadingComponet/LoadingComponet";
-
+import MessengerCustomerChat from 'react-messenger-customer-chat';
 function App() {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false)
@@ -80,6 +80,7 @@ function App() {
         })}
       </Routes>
     </Router>
+
     </Loading>
     </div>
   );

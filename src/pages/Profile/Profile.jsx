@@ -34,7 +34,7 @@ const ProfilePage = () => {
 
   const dispatch = useDispatch();
   const { data, isLoading, isSuccess, isError } = mutation;
-  console.log("data", data);
+  // console.log("data", data);
 
   useEffect(() => {
     setEmail(user && user.email);

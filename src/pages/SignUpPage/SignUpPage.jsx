@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../component/LoadingComponet/LoadingComponet";
-import * as message from "../../component/Mesage/Message"
+import * as message from "../../component/Mesage/Message";
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -24,22 +24,22 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const mutation = useMutationHooks((data) => UserService.signUpUser(data));
-  
+
   const { data, isLoading, isSuccess, isError } = mutation;
 
-  useEffect(()=>{
-    if(isSuccess){
-      message.success()
-      handleNavigateSignIn()
-    }else if (isError){
-      message.error()
+  useEffect(() => {
+    if (isSuccess) {
+      message.success();
+      handleNavigateSignIn();
+    } else if (isError) {
+      message.error();
     }
-  },[isSuccess,isError])
+  }, [isSuccess, isError]);
 
   const handleSignUp = () => {
     mutation.mutate({ email, password, confirmPassword });
   };
-  console.log(mutation);
+  // console.log(mutation);
   const handleNavigateSignIn = () => {
     navigate("/sign-in");
   };
@@ -98,6 +98,7 @@ const SignUpPage = () => {
               style={{ marginBottom: "10px" }}
               value={password}
               onChange={handleOnchangePassword}
+              type={isShowPassword ? "text" : "password"}
             />
           </div>
           <div style={{ position: "relative" }}>
@@ -116,9 +117,12 @@ const SignUpPage = () => {
               value={confirmPassword}
               onChange={handleOnchangeConfirmPassword}
               placeholder="comfirm password"
+              type={isShowConfirmPassword ? "text" : "password"}
             />
           </div>
-          {data && data.status === "ERR" && <span style={{ color: 'red' }}>{data.message}</span>}
+          {data && data.status === "ERR" && (
+            <span style={{ color: "red" }}>{data.message}</span>
+          )}
           <Loading isLoading={isLoading}>
             <ButtonComponent
               disabled={

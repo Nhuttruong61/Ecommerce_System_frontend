@@ -23,6 +23,7 @@ import { convertPrice, initFacebookSDK } from "../../utils";
 import * as message from "../../component/Mesage/Message";
 import LikeButtonComponent from "../LikeButtonComponent/LikeButtonComponent";
 import CommentComponent from "../CommentComponent/CommentComponent";
+
 const ProductDetailsComponent = ({ idProduct }) => {
   const [numProduct, setNumProduct] = useState(1);
   const navigate = useNavigate();
@@ -210,9 +211,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
           </WrapperAddressProduct>
           <LikeButtonComponent
             dataHref={
-              process.env.REACY_APP_IS_LOCAL
-                ? "https://developers.facebook.com/docs/plugins/"
-                : window.location.href
+              process.env.REACT_APP_IS_LOCAL ? "https://developers.facebook.com/docs/plugins/" : window.location.href
             }
           />
           <div
@@ -297,7 +296,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
         </Col>
         <CommentComponent
           dataHref={
-            process.env.REACY_APP_IS_LOCAL
+            process.env.REACT_APP_IS_LOCAL
               ? "https://developers.facebook.com/docs/plugins/comments#configurator"
               : window.location.href
           }

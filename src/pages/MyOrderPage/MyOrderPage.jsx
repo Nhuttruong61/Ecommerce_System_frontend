@@ -18,7 +18,7 @@ import { message } from "antd";
 
 const MyOrderPage = () => {
   const location = useLocation();
-  console.log("state", location);
+  // console.log("state", location);
   const { state } = location;
   const navigate = useNavigate();
   const fetchMyOrder = async () => {
@@ -117,7 +117,7 @@ const MyOrderPage = () => {
       })
     );
   };
-  console.log("data", data)
+  // console.log("data", data)
   return (
     <Loading isLoading={isLoading || isLoadingCancel}>
       <WrapperContainer>
