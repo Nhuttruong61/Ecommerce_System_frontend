@@ -38,7 +38,7 @@ export const getDetailsOrder = async (id, access_token) => {
 };
 export const UpdateStusDetailsOrder = async (id, status, access_token) => {
   const res = await axiosJWT.put(
-    `${process.env.REACT_APP_API_URL}/order/update-order-status/${id}`,
+    `${process.env.REACT_APP_API_URL}/order/update-status/${id}`,
     { status },
     {
       headers: {

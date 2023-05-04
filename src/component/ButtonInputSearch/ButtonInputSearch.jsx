@@ -31,7 +31,7 @@ const ButttonInputSearch = (props) => {
           borderRadius: 0,
         
         }}
-        icon={<SearchOutlined color={colorButton} style={{ color: "#ccc" }} />}
+        icon={<SearchOutlined color={colorButton} style={{ color: "white" }} />}
         textbutton={textbutton}
         styleTextButton={{ color: colorButton }}
       />
