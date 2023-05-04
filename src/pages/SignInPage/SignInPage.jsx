@@ -64,7 +64,7 @@ const SignInPage = () => {
   const handleSignIn = () => {
     mutation.mutate({ email, password });
   };
-  console.log(mutation);
+  // console.log(mutation);
   const handleNavigateSignUp = () => {
     navigate("/sign-up");
   };
@@ -146,9 +146,7 @@ const SignInPage = () => {
               }}
             ></ButtonComponent>
           </Loading>
-          <p>
-            <WrapperTextLight>Quên mật khẩu?</WrapperTextLight>
-          </p>
+        
           <p>
             Chưa có tài khoản?{" "}
             <WrapperTextLight onClick={handleNavigateSignUp}>

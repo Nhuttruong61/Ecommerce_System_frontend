@@ -10,6 +10,7 @@ import {
   WrapperAddressProduct,
   WrapperQualityProduct,
   WrapperInputNumber,
+  WrapperDiscriptionTextProduct,
 } from "./style";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
@@ -114,6 +115,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
               image: productDetails && productDetails.image,
               price: productDetails && productDetails.price,
               product: productDetails && productDetails._id,
+              description: productDetails && productDetails.description,
               discount: productDetails && productDetails.discount,
               countInstock: productDetails && productDetails.countInStock,
             },
@@ -206,9 +208,13 @@ const ProductDetailsComponent = ({ idProduct }) => {
           </WrapperPriceProduct>
           <WrapperAddressProduct>
             <span>Giao đến </span>
-            <span className="address">{user && user.address}</span> -
-            <span className="change-address">Đổi địa chỉ</span>
+            <span className="address">{user && user.address}</span> 
+           
           </WrapperAddressProduct>
+          <WrapperDiscriptionTextProduct>
+          <span>Mô tả: </span>
+             {productDetails && productDetails.description}
+            </WrapperDiscriptionTextProduct>
           <LikeButtonComponent
             dataHref={
               process.env.REACT_APP_IS_LOCAL ? "https://developers.facebook.com/docs/plugins/" : window.location.href

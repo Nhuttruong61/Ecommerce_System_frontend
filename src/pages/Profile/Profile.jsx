@@ -31,10 +31,11 @@ const ProfilePage = () => {
     const { id, access_token, ...rests } = data;
     UserService.updateUser(id, rests, access_token);
   });
+  // console.log('data', user);
 
   const dispatch = useDispatch();
   const { data, isLoading, isSuccess, isError } = mutation;
-  // console.log("data", data);
+ 
 
   useEffect(() => {
     setEmail(user && user.email);

@@ -39,7 +39,7 @@ const AdminPage = () => {
   const handleOnCLick = ({ key }) => {
     setKeySelected(key);
   };
-  console.log("keySelected", keySelected);
+  // console.log("keySelected", keySelected);
 
   return (
     <>

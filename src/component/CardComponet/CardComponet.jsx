@@ -57,11 +57,11 @@ const CardComponet = (props) => {
             style={{ fontSize: "12px", color: "rgb(253, 216, 54)" }}
           />
         </span>
-        <WrapperStyleTextSell> | Da ban {selled || 1000}+</WrapperStyleTextSell>
+        <WrapperStyleTextSell> | Da ban {selled || 10}+</WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
         <span style={{ marginRight: "8px" }}>{convertPrice(price)}</span>
-        <WrapperDiscountText> - {discount || 5} %</WrapperDiscountText>
+        <WrapperDiscountText> - {discount || 0} %</WrapperDiscountText>
       </WrapperPriceText>
     </WrapperCardStyle>
   );

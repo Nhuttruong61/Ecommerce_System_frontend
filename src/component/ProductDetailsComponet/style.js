@@ -38,7 +38,9 @@ export const WrapperPriceTextProduct = styled.h1`
     padding: 10px;
     margin-top: 10px;
 `
+export const WrapperDiscriptionTextProduct = styled.h3`
 
+`
 export const WrapperAddressProduct = styled.div`
     span.address {
         text-decoration: underline;

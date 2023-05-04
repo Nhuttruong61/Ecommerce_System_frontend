@@ -32,7 +32,7 @@ const DetailsOrderPage = () => {
     },0)
     return result
   },[data])
-
+// console.log('data',data)
   return (
    <Loading isLoading={isLoading}>
      <div style={{width: '100%', height: '100vh', background: '#f5f5fa'}}>
@@ -94,8 +94,6 @@ const DetailsOrderPage = () => {
                 <WrapperItem>{convertPrice(order && order.price)}</WrapperItem>
                 <WrapperItem>{order && order.amount}</WrapperItem>
                 <WrapperItem>{order && order.discount ? convertPrice( priceMemo * order && order.discount / 100) : '0 VND'}</WrapperItem>
-
-
               </WrapperProduct>
             )
           })}
@@ -112,7 +110,8 @@ const DetailsOrderPage = () => {
             <WrapperItemLabel>Tổng cộng</WrapperItemLabel>
             <WrapperItem><WrapperItem>{convertPrice(data && data.totalPrice)}</WrapperItem></WrapperItem>
           </WrapperAllPrice>
-      </WrapperStyleContent>
+          
+          </WrapperStyleContent>
       </div>
     </div>
    </Loading>

@@ -8,15 +8,10 @@ import * as message from "../../component/Mesage/Message";
 import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
 import * as OrderService from "../../services/OrderService";
-import {
-  DeleteOutlined,
-} from "@ant-design/icons";
 import ModalComponent from "../ModalComponent/ModalComponent";
 import Loading from "../LoadingComponet/LoadingComponet";
 function AdminOder() {
   const user = useSelector((state) => state && state.user);
-  const [rowSelected, setRowSelected] = useState("");
-  const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const getAllOrder = async () => {
     const res = await OrderService.getAllOrder(user && user.access_token);
     return res;
@@ -24,16 +19,7 @@ function AdminOder() {
 
   const queryOrder = useQuery(["orders"], getAllOrder);
   const { isLoading: isLoadingOrders, data: orders } = queryOrder;
-  const renderAction = () => {
-    return (
-      <div>
-        <DeleteOutlined
-          style={{ color: "red", fontSize: "30px", cursor: "pointer" }}
-          onClick={() => setIsModalOpenDelete(true)}
-        />
-      </div>
-    );
-  };
+
   const columns = [
     {
       title: "Name",
@@ -75,12 +61,10 @@ function AdminOder() {
       dataIndex: "updatedAt",
     },
     // {
-    //   title: "Action",
-    //   dataIndex: "action",
-    //   render: renderAction,
+    //   title: "Status",
+    //   dataIndex: "status",
     // },
   ];
-
   let dataTable = [];
   if (orders && orders.data && orders.data.length > 0) {
     dataTable = orders.data.map((order) => {
@@ -97,32 +81,7 @@ function AdminOder() {
       };
     });
   }
-  const mutationDeleted = useMutationHooks((data) => {
-    const { id, token } = data;
-    const res = OrderService.deleteOrder(id, token);
-    return res;
-  });
-
-  const handleCancelDelete = () => {
-    setIsModalOpenDelete(false);
-  };
-  const handleDeleteProduct = () => {
-    mutationDeleted.mutate(
-      { id: rowSelected, token: user && user.access_token },
-      {
-        onSettled: () => {
-          queryOrder.refetch();
-        },
-      }
-    );
-  };
-  console.log("row", orders)
-  const {
-    data: dataDeleted,
-    isLoading: isLoadingDeleted,
-    isSuccess: isSuccessDeleted,
-    isError: isErrorDeleted,
-  } = mutationDeleted;
+  console.log("Order", orders);
   return (
     <div>
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
@@ -134,16 +93,6 @@ function AdminOder() {
           data={dataTable}
         />
       </div>
-      <ModalComponent
-        title="Xóa sản phẩm"
-        open={isModalOpenDelete}
-        onCancel={handleCancelDelete}
-        onOk={handleDeleteProduct}
-      >
-        <Loading isLoading={isLoadingDeleted}>
-          <div>Bạn có chắc xóa sản phẩm này không?</div>
-        </Loading>
-      </ModalComponent>
     </div>
   );
 }

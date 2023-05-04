@@ -36,6 +36,18 @@ export const getDetailsOrder = async (id, access_token) => {
   );
   return res.data;
 };
+export const UpdateStusDetailsOrder = async (id, status, access_token) => {
+  const res = await axiosJWT.put(
+    `${process.env.REACT_APP_API_URL}/order/update-order-status/${id}`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  );
+  return res.data;
+};
 
 export const cancelOrder = async (id, access_token, orderItems) => {
   const res = await axiosJWT.delete(
